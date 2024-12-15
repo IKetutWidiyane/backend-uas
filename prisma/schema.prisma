@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model barang {
+  id_barang                          Int           @id @default(autoincrement())
+  nama                               String        @db.VarChar(100)
+  price                              Float
+  kategori                           Int
+  description                        String        @db.Text
+  image                              String        @db.Text
+  kategori_barang_kategoriTokategori kategori      @relation("barang_kategoriTokategori", fields: [kategori], references: [id_kategori], onUpdate: Restrict, map: "barang_ibfk_1")
+  transaction                        transaction[]
+
+  @@index([kategori], map: "kategori")
+}
+
+model kategori {
+  id_kategori                      Int      @id @default(autoincrement())
+  name                             String   @db.VarChar(100)
+  barang_barang_kategoriTokategori barang[] @relation("barang_kategoriTokategori")
+}
+
+model tb_user {
+  username    String        @id @db.VarChar(20)
+  full_name   String        @db.VarChar(100)
+  alamat      String        @db.VarChar(100)
+  kode_pos    String        @db.VarChar(15)
+  password    String        @db.VarChar(100)
+  role        Int           @default(2) @db.TinyInt
+  transaction transaction[]
+}
+
+model transaction {
+  transactionID Int     @id @default(autoincrement())
+  userID        String  @db.VarChar(20)
+  barangID      Int
+  harga         Float
+  jumlah        Int     @db.SmallInt
+  total         Float
+  status        Int     @default(1) @db.SmallInt
+  barang        barang  @relation(fields: [barangID], references: [id_barang], onUpdate: Restrict, map: "transaction_ibfk_1")
+  tb_user       tb_user @relation(fields: [userID], references: [username], onUpdate: Restrict, map: "transaction_ibfk_2")
+
+  @@index([barangID], map: "barangID")
+  @@index([userID], map: "userID")
+}
